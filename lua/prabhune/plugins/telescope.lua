@@ -11,6 +11,7 @@ return {
 
     vim.keymap.set("n", "<leader>ff", ":Telescope find_files hidden=true <CR>", { desc = "File search" })
     vim.keymap.set("n", "<leader>fg", builtin.git_files, { desc = "Git search" })
+    vim.keymap.set("n", "<leader>ww", builtin.current_buffer_fuzzy_find, { desc = "Word search" })
     vim.keymap.set("n", "<leader>ps", function()
       builtin.grep_string({ search = vim.fn.input("Grep > ") })
     end, { desc = "Project search" })
@@ -19,10 +20,10 @@ return {
     vim.keymap.set('n', '<leader>fw', function()
       local word = vim.fn.expand("<cword>")
       builtin.grep_string({ search = word })
-    end, { desc = "Word search" })
+    end, { desc = "Word search (under cursor)" })
     vim.keymap.set('n', '<leader>fW', function()
       local word = vim.fn.expand("<cWORD>")
       builtin.grep_string({ search = word })
-    end, { desc = "Phrase search" })
+    end, { desc = "Phrase search (under cursor)" })
   end
 }

@@ -1,75 +1,58 @@
 return {
-  "neovim/nvim-lspconfig",
-  version = "*", -- remove after they fix ESLint
-  dependencies = {
-    "hrsh7th/cmp-nvim-lsp",
-    "hrsh7th/nvim-cmp",
-  },
+  {
+    "neovim/nvim-lspconfig",
+    dependencies = {
+      -- BlinkCMP
+      "saghen/blink.cmp",
+      {
+        --- LuaLS --
+        "folke/lazydev.nvim",
+        ft = "lua", -- only load on lua files
+        opts = {
+          library = {
+            -- see the configuration section for more details
+            -- load luvit types when the `vim.uv` word is found
+            { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+          },
+        },
 
-  config = function()
-    local lspconfig_defaults = require('lspconfig').util.default_config
-    lspconfig_defaults.capabilities = vim.tbl_deep_extend(
-      'force',
-      lspconfig_defaults.capabilities,
-      require('cmp_nvim_lsp').default_capabilities()
-      )
+      },
+    },
+    config = function()
+      -- hey Lua LSP I know how to do a bunch of stuff you might
+      -- not have known that I knew how to do
+      local capabilities = require('blink.cmp').get_lsp_capabilities()
 
-    vim.api.nvim_create_autocmd('LspAttach', {
-        desc = 'LSP actions',
-        callback = function(event)
-          local opts = {buffer = event.buf}
+      -- lua language server (brew install lsp-language-server)
+      require("lspconfig").lua_ls.setup { capabilities = capabilities }
+      require('lspconfig').clangd.setup {}
 
-          vim.keymap.set('n', 'K', '<cmd>lua vim.lsp.buf.hover()<cr>', opts)
-          vim.keymap.set('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<cr>', opts)
-          vim.keymap.set('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<cr>', opts)
-          vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<cr>', opts)
-          vim.keymap.set('n', 'go', '<cmd>lua vim.lsp.buf.type_definition()<cr>', opts)
-          vim.keymap.set('n', 'gr', '<cmd>lua vim.lsp.buf.references()<cr>', opts)
-          vim.keymap.set('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<cr>', opts)
-          vim.keymap.set('n', '<F2>', '<cmd>lua vim.lsp.buf.rename()<cr>', opts)
-          vim.keymap.set({'n', 'x'}, '<F3>', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
-          vim.keymap.set('n', '<F4>', '<cmd>lua vim.lsp.buf.code_action()<cr>', opts)
+      -- key configuration entry point for determining what an lsp should do
+      vim.api.nvim_create_autocmd('LspAttach', {
+        group = vim.api.nvim_create_augroup('my.lsp', {}),
+
+        -- called every time we attach a file and language server
+        callback = function(args)
+          local client = vim.lsp.get_client_by_id(args.data.client_id)
+          if not client then return end
+
+          -- AUTO FORMATTING
+          -- does client actually support formatting
+          if client:supports_method('textDocument/formatting') then
+            -- create autocmd
+            vim.api.nvim_create_autocmd('BufWritePre', {
+              group = vim.api.nvim_create_augroup('my.lsp', { clear = false }),
+
+              -- only listen to LSPs inside current buffer (e.g., don't do lua lsp inside c file)
+              buffer = args.buf,
+              -- runs lsp formatting for current buffer
+              callback = function()
+                vim.lsp.buf.format({ bufnr = args.buf, id = client.id, timeout_ms = 1000 })
+              end,
+            })
+          end
         end,
       })
-
-    local cmp = require('cmp')
-
-    cmp.setup({
-      sources = {
-        {name = "nvim_lsp"},
-        {name = "luasnip"},
-      },
-      snippet = {
-        expand = function(args)
-          require('luasnip').lsp_expand(args.body)
-          -- vim.snippet.expand(args.body)
-        end,
-      },
-      preselect = 'item',
-      completion = {
-        completeopt = 'menu,menuone,noinsert'
-      },
-      mapping = cmp.mapping.preset.insert({
-        ['<CR>'] = cmp.mapping.confirm({select = false}),
-        -- Jump to the next snippet placeholder
-        ['<C-f>'] = cmp.mapping(function(fallback)
-          local luasnip = require('luasnip')
-          if luasnip.locally_jumpable(1) then
-            luasnip.jump(1)
-          else
-            fallback()
-          end
-        end, {'i', 's'}),
-        -- Jump to the previous snippet placeholder
-        ['<C-b>'] = cmp.mapping(function(fallback)
-          local luasnip = require('luasnip')
-          if luasnip.locally_jumpable(-1) then
-            luasnip.jump(-1)
-          else
-            fallback()
-          end
-        end, {'i', 's'}),
-      }),
-    })
-  end
+    end,
+  }
 }
