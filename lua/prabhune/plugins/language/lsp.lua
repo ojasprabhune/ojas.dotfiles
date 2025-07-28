@@ -18,14 +18,17 @@ return {
 
       },
     },
+
     config = function()
       -- hey Lua LSP I know how to do a bunch of stuff you might
       -- not have known that I knew how to do
       local capabilities = require('blink.cmp').get_lsp_capabilities()
+      local lspconfig = require("lspconfig")
 
       -- lua language server (brew install lsp-language-server)
-      require("lspconfig").lua_ls.setup { capabilities = capabilities }
-      require('lspconfig').clangd.setup {}
+      lspconfig.lua_ls.setup { capabilities = capabilities }
+
+
 
       -- key configuration entry point for determining what an lsp should do
       vim.api.nvim_create_autocmd('LspAttach', {
@@ -36,7 +39,8 @@ return {
           local client = vim.lsp.get_client_by_id(args.data.client_id)
           if not client then return end
 
-          -- AUTO FORMATTING
+          --- AUTO FORMATTING on save
+
           -- does client actually support formatting
           if client:supports_method('textDocument/formatting') then
             -- create autocmd

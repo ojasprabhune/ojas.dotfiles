@@ -10,8 +10,10 @@ return {
     local builtin = require('telescope.builtin')
 
     vim.keymap.set("n", "<leader>ff", ":Telescope find_files hidden=true <CR>", { desc = "File search" })
+    vim.keymap.set("n", "<space>fb", ":Telescope file_browser<CR>", { desc = "File browser" })
+    vim.keymap.set("n", "<leader>ft", ":Telescope live_grep hidden=true <CR>", { desc = "Word search" })
     vim.keymap.set("n", "<leader>fg", builtin.git_files, { desc = "Git search" })
-    vim.keymap.set("n", "<leader>ww", builtin.current_buffer_fuzzy_find, { desc = "Word search" })
+    vim.keymap.set("n", "<leader>ww", builtin.current_buffer_fuzzy_find, { desc = "Word search in current buffer" })
     vim.keymap.set("n", "<leader>ps", function()
       builtin.grep_string({ search = vim.fn.input("Grep > ") })
     end, { desc = "Project search" })

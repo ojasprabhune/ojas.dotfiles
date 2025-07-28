@@ -23,7 +23,7 @@ return {
       appearance = {
         nerd_font_variant = 'mono'
       },
-
+      -- (Default) Use the built-in LSP signature help
       signature = { enabled = true },
 
       -- (Default) Rust fuzzy matcher for typo resistance and significantly better performance
