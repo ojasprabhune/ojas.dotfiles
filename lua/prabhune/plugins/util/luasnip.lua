@@ -5,7 +5,7 @@ return {
     config = function()
       require("luasnip.loaders.from_vscode").lazy_load()
       -- You can also load snippets from other sources, like Lua files:
-      -- require("luasnip.loaders.from_lua").load({ paths = "./lua/luasnippets" })
+      require("luasnip.loaders.from_lua").lazy_load({ paths = "~/.config/nvim/lua/prabhune/snippets" })
     end,
   },
   -- follow latest release.
