@@ -31,6 +31,6 @@ vim.opt.ignorecase = true
 vim.opt.smartcase = true
 
 vim.o.background = "dark" -- or "light" for light mode
-vim.cmd([[colorscheme gruvbox]])
+vim.cmd([[colorscheme tokyonight]])
 
 vim.opt.showmode = false

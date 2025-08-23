@@ -28,7 +28,13 @@ return {
       -- lua language server (brew install lsp-language-server)
       lspconfig.lua_ls.setup { capabilities = capabilities }
 
-
+      -- autocmd: start treesitter when any file opens (required for treesitter main branch)
+      -- required for FANCY and SPICY syntax highlighting
+      vim.api.nvim_create_autocmd("BufReadPost", {
+        callback = function()
+          vim.treesitter.start()
+        end,
+      })
 
       -- key configuration entry point for determining what an lsp should do
       vim.api.nvim_create_autocmd('LspAttach', {
